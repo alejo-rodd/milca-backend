@@ -34,12 +34,12 @@ export class ImagesController {
   })
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
-    return this.imagesService.uploadImage(file);
+    return {fileName: (await this.imagesService.uploadImage(file)).public_id};
   }
 
   @Get(':publicId')
   async getImageUrl(@Param('publicId') publicId: string) {
-    return { url: await this.imagesService.getImageUrl(publicId) };
+    return await this.imagesService.getImageUrl(publicId);
   }
 
   @Delete()

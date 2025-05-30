@@ -10,7 +10,7 @@ export class ImagesService {
     return new Promise((resolve, reject) => {
       this.cloudinary.uploader
         .upload_stream(
-          { folder: 'tazas', quality: 'auto' } as UploadApiOptions,
+          { folder: '', quality: 'auto' } as UploadApiOptions,
           (error, result) => {
             if (error) return reject(error);
             resolve(result);
