@@ -9,6 +9,8 @@ import { PriceHistoryModule } from 'src/price-history/price-history.module';
 import { ClientsModule } from 'src/clients/clients.module';
 import { MugsModule } from 'src/mugs/mugs.module';
 import { ImagesModule } from 'src/images/images.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { TwilioModule } from 'src/twilio/twilio.module';
 
 @Module({
   imports: [
@@ -16,7 +18,9 @@ import { ImagesModule } from 'src/images/images.module';
     PriceHistoryModule,
     ClientsModule,
     MugsModule,
-    ImagesModule
+    ImagesModule,
+    AuthModule,
+    TwilioModule,
   ],
   controllers: [PurchaseOrdersController],
   providers: [PurchaseOrdersService, PriceHistoryService],

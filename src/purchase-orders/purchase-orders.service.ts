@@ -15,12 +15,18 @@ import { CreateDetailOrderDto } from './dto/create-detail-order.dtos';
 import { FilterByStatusDto } from './dto/filter-by-status.dto';
 import { ImagesService } from 'src/images/images.service';
 import { PriceHistoryService } from 'src/price-history/price-history.service';
+import { TwilioService } from 'src/twilio/twilio.service';
+import { AuthService } from 'src/auth/auth.service';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class PurchaseOrdersService {
   constructor(
     private readonly priceHistoryService: PriceHistoryService,
     private readonly imagesService: ImagesService,
+    private readonly twilioService: TwilioService,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @InjectRepository(PurchaseOrder)
     private readonly purchaseOrderRepository: Repository<PurchaseOrder>,
     @InjectRepository(DetailOrder)
@@ -36,6 +42,8 @@ export class PurchaseOrdersService {
       });
       const savedPurchaseOrder =
         await this.purchaseOrderRepository.save(purchaseOrder);
+
+      await this.sendNotification(client);
       return savedPurchaseOrder;
     } catch (error) {
       console.error('Error al crear la orden de compra:', error);
@@ -181,6 +189,23 @@ export class PurchaseOrdersService {
       ...purchaseOrder,
       total,
     };
+  }
+
+  async sendNotification(client: Client) {
+    const messsage = `Hola, recibiste un nuevo pedido, para ${client.name} ${client.lastName}, su número es ${client.phoneNumber}, para la ciudad de ${client.city} en la dirección ${client.shippingAddress}`;
+
+    const users = await this.userRepository.find({ withDeleted: false });
+
+    users.forEach((user) => {
+      this.twilioService
+        .sendWhatsApp({
+          to: user.phoneNumber,
+          body: messsage,
+        })
+        .catch((error) => {
+          console.error('Error al enviar mensaje de WhatsApp:', error);
+        });
+    });
   }
 
   async reportSalesByDateRange(
